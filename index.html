@@ -1,0 +1,3383 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Calculateur Jesmonite V4
+</title>
+
+<style>
+
+:root{
+    --bleu:#1e293b;
+    --gris:#f3f4f6;
+    --vert:#dcfce7;
+    --vert-bord:#16a34a;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:var(--gris);
+}
+
+header{
+    background:var(--bleu);
+    color:white;
+    padding:15px;
+}
+
+header h1{
+    margin:0;
+}
+
+nav{
+    display:flex;
+    gap:10px;
+    padding:10px;
+    background:#e5e7eb;
+    flex-wrap:wrap;
+}
+
+nav button{
+    padding:10px 15px;
+    border:none;
+    background:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+nav button:hover{
+    background:#dbeafe;
+}
+
+.page{
+    display:none;
+    padding:20px;
+}
+
+.page.active{
+    display:block;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:15px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.15);
+}
+
+.card h2{
+    margin-top:0;
+}
+
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.grid-3{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:15px;
+}
+
+@media(max-width:900px){
+
+    .grid-2,
+    .grid-3{
+        grid-template-columns:1fr;
+    }
+
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+}
+
+textarea{
+    min-height:100px;
+}
+
+button{
+    cursor:pointer;
+}
+
+.action-btn{
+    padding:8px 12px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+}
+
+.action-btn:hover{
+    background:#1d4ed8;
+}
+
+.success{
+    background:var(--vert);
+    border:1px solid var(--vert-bord);
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+.result-box{
+
+    background:#f8fafc;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:10px;
+
+}
+
+.result-title{
+    color:#64748b;
+    font-size:14px;
+}
+
+.result-value{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.reference-line{
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    padding:10px;
+    margin-bottom:10px;
+}
+
+.tag{
+    display:inline-block;
+    background:#e0f2fe;
+    padding:5px 10px;
+    border-radius:999px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>
+Calculateur Jesmonite Atelier V4
+</h1>
+
+</header>
+
+<nav>
+
+<button id="navProduction">
+🏭 Production
+</button>
+
+<button id="navHistorique">
+📚 Historique
+</button>
+
+<button id="navReferences">
+⚙️ Références
+</button>
+
+<button id="navSauvegarde">
+💾 Sauvegardes
+</button>
+
+</nav>
+
+<!-- ===================================================== -->
+<!-- PRODUCTION -->
+<!-- ===================================================== -->
+
+<section
+id="pageProduction"
+class="page active">
+
+<div class="card">
+
+<h2>
+Paramètres de fabrication
+</h2>
+
+<div class="grid-2">
+
+<div>
+
+<label>
+Majoration liquide (%)
+</label>
+
+<input
+id="majoration"
+type="number"
+step="0.1"
+value="4.5">
+
+</div>
+
+<div>
+
+<label>
+Couleur
+</label>
+
+<input
+id="couleur"
+placeholder="Terracotta">
+
+</div>
+
+</div>
+
+<br>
+
+<div class="grid-2">
+
+<div>
+
+<label>
+Colorant (%)
+</label>
+
+<input
+id="colorantPct"
+type="number"
+step="0.1"
+value="1">
+
+<br><br>
+
+<button
+class="action-btn"
+id="btnColorStandard">
+
+Standard 1%
+
+</button>
+
+<button
+class="action-btn"
+id="btnColorBlanc">
+
+Blanc 1,6%
+
+</button>
+
+</div>
+
+<div>
+
+<label>
+Retardataire (%)
+</label>
+
+<input
+id="retardatairePct"
+type="number"
+step="0.1"
+value="0.8">
+
+<br><br>
+
+<button
+class="action-btn"
+id="btnRetAvec">
+
+Avec
+
+</button>
+
+<button
+class="action-btn"
+id="btnRetSans">
+
+Sans
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>
+Références à produire
+</h2>
+
+<div id="referenceLines">
+
+</div>
+
+<button
+class="action-btn"
+id="btnAjouterReference">
+
++ Ajouter une référence
+
+</button>
+
+<button
+class="action-btn"
+id="btnViderProduction"
+onclick="viderProduction()">
+
+🗑 Vider la production
+
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>
+Résultat
+</h2>
+
+<div class="grid-3">
+
+<div class="result-box">
+<div class="result-title">
+Pièces
+</div>
+<div
+id="nbPieces"
+class="result-value">
+0
+</div>
+</div>
+
+<div class="result-box">
+<div class="result-title">
+Volume total
+</div>
+<div
+id="volumeTotal"
+class="result-value">
+0
+</div>
+</div>
+
+<div class="result-box">
+<div class="result-title">
+Liquide
+</div>
+<div
+id="liquide"
+class="result-value">
+0
+</div>
+</div>
+
+<div class="result-box">
+<div class="result-title">
+Poudre
+</div>
+<div
+id="poudre"
+class="result-value">
+0
+</div>
+</div>
+
+<div class="result-box">
+<div class="result-title">
+Colorant
+</div>
+<div
+id="colorant"
+class="result-value">
+0
+</div>
+</div>
+
+<div class="result-box">
+<div class="result-title">
+Retardataire
+</div>
+<div
+id="retardataire"
+class="result-value">
+0
+</div>
+</div>
+
+</div>
+
+<button
+class="action-btn"
+id="btnValider">
+
+✅ Valider la mise en production
+
+<div id="confirmationLot"></div>
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- HISTORIQUE -->
+<!-- ===================================================== -->
+
+<section
+id="pageHistorique"
+class="page">
+
+<div class="card">
+
+<h2>
+Historique
+</h2>
+
+<input
+id="rechercheHistorique"
+placeholder="Recherche lot, couleur, référence...">
+
+<br><br>
+
+<button
+class="action-btn"
+onclick="ouvrirToutHistorique()">
+
+▼ Tout ouvrir
+
+</button>
+
+<button
+class="action-btn"
+onclick="fermerToutHistorique()">
+
+▶ Tout fermer
+
+</button>
+
+</div>
+
+<div id="historiqueContainer">
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- REFERENCES -->
+<!-- ===================================================== -->
+
+<section
+id="pageReferences"
+class="page">
+
+<div class="card">
+
+<h2>
+Références
+</h2>
+
+<input
+id="refSearch"
+placeholder="Recherche référence">
+
+<br><br>
+
+<select id="refSort">
+
+<option value="az">
+Nom A → Z
+</option>
+
+<option value="za">
+Nom Z → A
+</option>
+
+<option value="volumeAsc">
+Volume croissant
+</option>
+
+<option value="volumeDesc">
+Volume décroissant
+</option>
+
+</select>
+
+<br><br>
+
+<div
+id="refCounter"
+class="tag">
+
+0 référence
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>
+Ajouter une référence
+</h3>
+
+<input
+id="newRefName"
+placeholder="Nom">
+
+<input
+id="newRefVolume"
+type="number"
+placeholder="Volume">
+
+<br><br>
+
+<button
+class="action-btn"
+id="btnAddRef">
+
+➕ Ajouter
+
+</button>
+
+<button
+class="action-btn"
+id="btnExportReferences">
+
+📤 Export références
+
+</button>
+
+<button
+class="action-btn"
+id="btnImportReferences">
+
+📥 Import références
+
+</button>
+
+</div>
+
+<div id="referencesContainer">
+
+</div>
+
+</section>
+
+<!-- ===================================================== -->
+<!-- SAUVEGARDE -->
+<!-- ===================================================== -->
+
+<section
+id="pageSauvegarde"
+class="page">
+
+<div class="card">
+
+<h2>
+Sauvegardes
+</h2>
+
+<!--
+<button
+class="action-btn"
+id="btnResetStats">
+
+🧹 Réinitialiser les statistiques
+
+</button>
+-->
+
+<br><br>
+
+<button
+class="action-btn"
+id="btnExport">
+
+Exporter les données
+
+</button>
+
+<button
+class="action-btn"
+id="btnImport">
+
+Importer les données
+
+</button>
+
+<button
+class="action-btn"
+id="btnExportExcel">
+
+📊 Export Excel
+
+</button>
+
+<button
+class="action-btn"
+id="btnResetRefs">
+
+🔄 Recharger les références par défaut
+
+</button>
+
+</div>
+
+</section>
+
+<script>
+
+/* =====================================================
+   STOCKAGE
+===================================================== */
+
+const STORAGE_REF = "jesmonite_v4_references";
+const STORAGE_LOTS = "jesmonite_v4_lots";
+
+let references =
+JSON.parse(
+    localStorage.getItem(STORAGE_REF)
+) || [
+
+{ nom:"Baleine", volume:105 },
+{ nom:"Barque", volume:133 },
+{ nom:"Biberon", volume:180 },
+{ nom:"Biberon (Vnl)", volume:180 },
+{ nom:"Bonhomme De Neige", volume:295 },
+{ nom:"Boule Carrousel GD", volume:402 },
+{ nom:"Boule Carrousel PT", volume:242 },
+{ nom:"Boule Flocon GD", volume:364 },
+{ nom:"Boule Flocon GD (mét.)", volume:364 },
+{ nom:"Boule Flocon GD Blanc", volume:364 },
+{ nom:"Boule Flocon PT", volume:158 },
+{ nom:"Boule Flocon PT (mét.)", volume:158 },
+{ nom:"Boule Flocon PT Blanc", volume:158 },
+{ nom:"Boule Hiver GD (mét.)", volume:348 },
+{ nom:"Boule Hiver PT (mét.)", volume:212 },
+{ nom:"Boule Houx GD", volume:350 },
+{ nom:"Boule Houx GD Blanc", volume:350 },
+{ nom:"Boule Houx PT", volume:158 },
+{ nom:"Boule Houx PT Blanc", volume:158 },
+{ nom:"Brûleur Marbré", volume:316 },
+{ nom:"Bulot", volume:80 },
+{ nom:"Cadeau", volume:352 },
+{ nom:"Manège GD", volume:357 },
+{ nom:"Manège GD (mét.)", volume:357 },
+{ nom:"Manège PT", volume:254 },
+{ nom:"Manège PT (mét.)", volume:254 },
+{ nom:"Cathédrale", volume:326 },
+{ nom:"Champignon", volume:257 },
+{ nom:"Chandelle Nœud", volume:92 },
+{ nom:"Chausson danse", volume:390 },
+{ nom:"Cheminé", volume:234 },
+{ nom:"Citrouille", volume:287 },
+{ nom:"Citrouille magique", volume:299 },
+{ nom:"Citrouille plate", volume:442 },
+{ nom:"Cloche", volume:153 },
+{ nom:"Combi", volume:275 },
+{ nom:"Coquillage", volume:240 },
+{ nom:"Coquillage escargot", volume:230 },
+{ nom:"Escargot", volume:392 },
+{ nom:"Fantôme GD", volume:395 },
+{ nom:"Fantôme PT", volume:235 },
+{ nom:"Fleur GD", volume:405 },
+{ nom:"Fleur PT", volume:210 },
+{ nom:"Gland GD", volume:315 },
+{ nom:"Gland PT", volume:175 },
+{ nom:"Gnome", volume:256 },
+{ nom:"Lapin GD", volume:408 },
+{ nom:"Lapin PT", volume:217 },
+{ nom:"Lotus", volume:95 },
+{ nom:"Maison pain d'épice", volume:324 },
+{ nom:"Nœud", volume:95 },
+{ nom:"Œuf", volume:120 },
+{ nom:"Œuf Lapin", volume:215 },
+{ nom:"Phare", volume:176 },
+{ nom:"Plateau D11", volume:76 },
+{ nom:"Plateau D25", volume:330 },
+{ nom:"Plateau nuage", volume:420 },
+{ nom:"Plateau oval PT", volume:170 },
+{ nom:"Plateau ovale GD", volume:270 },
+{ nom:"Plateau roue de l'année", volume:95 },
+{ nom:"Galette Des Rois", volume:276 },
+{ nom:"Pot Noël Casse-Nois.", volume:234 },
+{ nom:"Pot Noël Casse-Nois. (mét.)", volume:234 },
+{ nom:"Pot Noël Cheminée", volume:235 },
+{ nom:"Pot Noël Enneigé", volume:228 },
+{ nom:"Pot Noël Pain d'épice", volume:240 },
+{ nom:"Pot Noël Père-Noël", volume:215 },
+{ nom:"Potimarron", volume:367 },
+{ nom:"Plateau Rondin", volume:88 },
+{ nom:"Rose GD", volume:325 },
+{ nom:"Rose PT", volume:170 },
+{ nom:"Sapin Noël", volume:310 },
+{ nom:"Sapin Noël (marb.)", volume:310 },
+{ nom:"Sapin Noël (mét.)", volume:310 },
+{ nom:"Sapriochka", volume:550 },
+{ nom:"Sapriochka (mét.)", volume:550 },
+{ nom:"Support œuf", volume:220 },
+{ nom:"Tonneau", volume:225 },
+{ nom:"Tortue", volume:280 },
+{ nom:"Visage", volume:160 },
+{ nom:"Voiture Coccinelle", volume:532 },
+{ nom:"Voiture Noël", volume:362 },
+{ nom:"Brûleur Uni", volume:316 },
+{ nom:"Diffuseur Marbré", volume:230 },
+{ nom:"Diffuseur Uni", volume:230 },
+{ nom:"Pot Coquillage", volume:150 },
+{ nom:"Pot standard GD", volume:264 },
+{ nom:"Pot standard PT", volume:108 },
+{ nom:"Pot standard PT Jarre", volume:103 },
+{ nom:"Pot perso GD - P&P", volume:275 }
+
+];
+
+
+function saveReferences(){
+
+    localStorage.setItem(
+        STORAGE_REF,
+        JSON.stringify(references)
+    );
+
+}
+
+function getLots(){
+
+    return JSON.parse(
+        localStorage.getItem(STORAGE_LOTS)
+    ) || [];
+
+}
+
+function saveLots(lots){
+
+    localStorage.setItem(
+        STORAGE_LOTS,
+        JSON.stringify(lots)
+    );
+
+}
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+function hideAllPages(){
+
+    document
+    .querySelectorAll(".page")
+    .forEach(page=>{
+
+        page.classList.remove(
+            "active"
+        );
+
+    });
+
+}
+
+function showPage(pageId){
+
+    hideAllPages();
+
+    document
+    .getElementById(pageId)
+    .classList.add("active");
+
+}
+
+document
+.getElementById("navProduction")
+.addEventListener(
+"click",
+()=>{
+
+    showPage("pageProduction");
+
+}
+);
+
+document
+.getElementById("navHistorique")
+.addEventListener(
+"click",
+()=>{
+
+    showPage("pageHistorique");
+
+    renderHistorique();
+
+}
+);
+
+document
+.getElementById("navReferences")
+.addEventListener(
+"click",
+()=>{
+
+    showPage("pageReferences");
+
+    renderReferences();
+
+}
+);
+
+document
+.getElementById("navSauvegarde")
+.addEventListener(
+"click",
+()=>{
+
+    showPage("pageSauvegarde");
+
+}
+);
+
+/* =====================================================
+   BOUTONS RAPIDES
+===================================================== */
+
+document
+.getElementById("btnColorStandard")
+.addEventListener(
+"click",
+()=>{
+
+    document
+    .getElementById("colorantPct")
+    .value = 1;
+
+    if(
+        document
+        .getElementById("couleur")
+        .value === "Blanc"
+    ){
+
+        document
+        .getElementById("couleur")
+        .value = "";
+
+    }
+
+    calculer();
+
+}
+);
+
+document
+.getElementById("btnColorBlanc")
+.addEventListener(
+"click",
+()=>{
+
+    document
+    .getElementById("colorantPct")
+    .value = 1.6;
+
+    document
+    .getElementById("couleur")
+    .value = "Blanc";
+
+    calculer();
+
+}
+);
+
+document
+.getElementById("btnRetAvec")
+.addEventListener(
+"click",
+()=>{
+
+    document
+    .getElementById("retardatairePct")
+    .value = 0.8;
+
+    calculer();
+
+}
+);
+
+document
+.getElementById("btnRetSans")
+.addEventListener(
+"click",
+()=>{
+
+    document
+    .getElementById("retardatairePct")
+    .value = 0;
+
+    calculer();
+
+}
+);
+
+/* =====================================================
+   LIGNES DE PRODUCTION
+===================================================== */
+
+function creerRechercheReference(){
+
+    const container =
+    document.createElement("div");
+
+    const input =
+    document.createElement("input");
+
+    input.placeholder =
+    "Rechercher une référence";
+
+    const liste =
+    document.createElement("div");
+
+    liste.style.border =
+    "1px solid #ccc";
+
+    liste.style.maxHeight =
+    "150px";
+
+    liste.style.overflowY =
+    "auto";
+
+    liste.style.display =
+    "none";
+
+    const valeurChoisie =
+    document.createElement("div");
+
+	valeurChoisie.dataset.reference = "";
+
+	valeurChoisie.innerHTML =
+	"<i>Aucune référence sélectionnée</i>";
+
+    input.addEventListener(
+        "input",
+        ()=>{
+
+            const filtre =
+            input.value
+            .toLowerCase();
+
+            liste.innerHTML = "";
+
+            const resultats =
+            references.filter(r=>
+
+                r.nom
+                .toLowerCase()
+                .includes(filtre)
+
+            );
+
+            liste.style.display =
+            resultats.length
+            ? "block"
+            : "none";
+
+            resultats.forEach(ref=>{
+
+                const ligne =
+                document.createElement("div");
+
+                ligne.style.padding =
+                "5px";
+
+                ligne.style.cursor =
+                "pointer";
+
+                ligne.textContent =
+                ref.nom;
+
+                ligne.addEventListener(
+                    "click",
+                    ()=>{
+
+                        valeurChoisie.dataset.reference =
+                        ref.nom;
+
+                        valeurChoisie.innerHTML =
+                        `<b>${ref.nom}</b>`;
+
+                        input.value =
+                        "";
+
+                        liste.style.display =
+                        "none";
+
+                        calculer();
+
+                    }
+                );
+
+                liste.appendChild(
+                    ligne
+                );
+
+            });
+
+        }
+    );
+
+    container.appendChild(input);
+    container.appendChild(liste);
+    container.appendChild(valeurChoisie);
+
+    return container;
+
+}
+
+function ajouterLigne(){
+
+    const line =
+    document.createElement("div");
+
+    line.className =
+    "reference-line";
+
+    const select =
+    creerRechercheReference();
+
+    const quantite =
+    document.createElement(
+        "input"
+    );
+
+    quantite.type =
+    "number";
+
+    quantite.min = 0;
+
+    quantite.value = 0;
+
+    const volumeInfo =
+    document.createElement(
+        "div"
+    );
+
+    const sousTotalInfo =
+    document.createElement(
+        "div"
+    );
+
+    const boutonSupprimer =
+    document.createElement(
+        "button"
+    );
+
+    boutonSupprimer.textContent =
+    "🗑 Supprimer";
+
+    boutonSupprimer.className =
+    "action-btn";
+
+    boutonSupprimer.addEventListener(
+    "click",
+    ()=>{
+
+        line.remove();
+
+        calculer();
+
+    });
+
+    select.addEventListener(
+    "change",
+    calculer
+    );
+
+    quantite.addEventListener(
+    "input",
+    calculer
+    );
+
+    line.appendChild(select);
+    line.appendChild(quantite);
+    line.appendChild(volumeInfo);
+    line.appendChild(sousTotalInfo);
+    line.appendChild(boutonSupprimer);
+
+    line._volumeInfo =
+    volumeInfo;
+
+    line._sousTotalInfo =
+    sousTotalInfo;
+
+    document
+    .getElementById(
+        "referenceLines"
+    )
+    .appendChild(line);
+
+    calculer();
+
+}
+
+document
+.getElementById(
+"btnAjouterReference"
+)
+.addEventListener(
+"click",
+ajouterLigne
+);
+
+/* =====================================================
+   CALCULS JESMONITE
+===================================================== */
+
+function calculer(){
+
+    let volumeTotal = 0;
+    let piecesTotales = 0;
+
+    document
+    .querySelectorAll(
+        "#referenceLines .reference-line"
+    )
+    .forEach(line=>{
+
+const refElement =
+line.querySelector(
+    "[data-reference]"
+);
+
+if(!refElement){
+
+    line._volumeInfo.innerHTML =
+    "Volume unitaire : <b>0 ml</b>";
+
+    line._sousTotalInfo.innerHTML =
+    "Sous-total : <b>0 ml</b>";
+
+    return;
+}
+
+const nom =
+refElement.dataset.reference;
+
+const qte =
+Number(
+    line.querySelector(
+        "input[type='number']"
+    ).value
+) || 0;
+
+const ref =
+references.find(
+    r => r.nom === nom
+);
+
+if(!ref){
+
+    line._volumeInfo.innerHTML =
+    "Volume unitaire : <b>0 ml</b>";
+
+    line._sousTotalInfo.innerHTML =
+    "Sous-total : <b>0 ml</b>";
+
+    return;
+}
+
+        const sousTotal =
+		Number(ref.volume) *
+		Number(qte);
+
+        volumeTotal +=
+        sousTotal;
+
+        piecesTotales +=
+        qte;
+
+        line._volumeInfo.innerHTML =
+        `
+        Volume unitaire :
+        <b>${ref.volume} ml</b>
+        `;
+
+        line._sousTotalInfo.innerHTML =
+        `
+        Sous-total :
+        <b>${sousTotal} ml</b>
+        `;
+
+    });
+
+    const majoration =
+    Number(
+        document
+        .getElementById(
+            "majoration"
+        )
+        .value
+    ) || 0;
+
+    const colorantPct =
+    Number(
+        document
+        .getElementById(
+            "colorantPct"
+        )
+        .value
+    ) || 0;
+
+    const retardatairePct =
+    Number(
+        document
+        .getElementById(
+            "retardatairePct"
+        )
+        .value
+    ) || 0;
+
+    const liquideBase =
+    volumeTotal / 2;
+
+    const poudreBase =
+    liquideBase * 2.5;
+
+    const masseTheorique =
+    liquideBase +
+    poudreBase;
+
+    const liquide =
+    Math.ceil(
+        liquideBase *
+        (
+            1 +
+            (
+                majoration / 100
+            )
+        )
+    );
+
+    const poudre =
+    Math.floor(
+        masseTheorique -
+        liquide
+    );
+
+    const colorant =
+    Number(
+        (
+            (
+                liquide +
+                poudre
+            )
+            *
+            colorantPct
+            / 100
+        )
+        .toFixed(1)
+    );
+
+    const retardataire =
+    Number(
+        (
+            (
+                liquide +
+                colorant
+            )
+            *
+            retardatairePct
+            / 100
+        )
+        .toFixed(1)
+    );
+
+    document
+    .getElementById(
+        "nbPieces"
+    )
+    .textContent =
+    piecesTotales;
+
+    document
+    .getElementById(
+        "volumeTotal"
+    )
+    .textContent =
+    volumeTotal;
+
+    document
+    .getElementById(
+        "liquide"
+    )
+    .textContent =
+    liquide;
+
+    document
+    .getElementById(
+        "poudre"
+    )
+    .textContent =
+    poudre;
+
+    document
+    .getElementById(
+        "colorant"
+    )
+    .textContent =
+    colorant;
+
+    document
+    .getElementById(
+        "retardataire"
+    )
+    .textContent =
+    retardataire;
+
+}
+
+/* =====================================================
+   RECALCUL AUTOMATIQUE
+===================================================== */
+
+[
+"majoration",
+"colorantPct",
+"retardatairePct"
+]
+.forEach(id=>{
+
+    document
+    .getElementById(id)
+    .addEventListener(
+        "input",
+        calculer
+    );
+
+});
+
+/* =====================================================
+   INITIALISATION
+===================================================== */
+
+ajouterLigne();
+
+calculer();
+
+
+/* =====================================================
+   SAUVEGARDE DE PRODUCTION
+===================================================== */
+
+document
+.getElementById("btnValider")
+.addEventListener(
+"click",
+sauvegarderProduction
+);
+
+function sauvegarderProduction(){
+
+    const lots = getLots();
+
+    const now =
+    new Date();
+
+    const yyyy =
+    now.getFullYear();
+
+    const mm =
+    String(
+        now.getMonth()+1
+    ).padStart(2,"0");
+
+    const dd =
+    String(
+        now.getDate()
+    ).padStart(2,"0");
+
+    const compteur =
+    String(
+        lots.length + 1
+    ).padStart(3,"0");
+
+    const numeroLot =
+    `LOT-${yyyy}${mm}${dd}-${compteur}`;
+
+    const detailReferences = [];
+
+    document
+    .querySelectorAll(
+        "#referenceLines .reference-line"
+    )
+    .forEach(line=>{
+
+        detailReferences.push({
+
+            reference:
+
+line
+.querySelector(
+"[data-reference]"
+)
+.dataset.reference,
+
+            quantite:
+            Number(
+                line
+                .querySelector(
+                    "input[type='number']"
+                )
+                .value
+            )
+
+        });
+
+    });
+
+    const lot = {
+
+        lot:
+        numeroLot,
+
+        date:
+		now.toLocaleString(),
+
+		dateIso:
+		now.toISOString(),
+
+        couleur:
+        document
+        .getElementById(
+            "couleur"
+        )
+        .value,
+
+        majoration:
+        Number(
+            document
+            .getElementById(
+                "majoration"
+            )
+            .value
+        ),
+
+        colorantPct:
+        Number(
+            document
+            .getElementById(
+                "colorantPct"
+            )
+            .value
+        ),
+
+        retardatairePct:
+        Number(
+            document
+            .getElementById(
+                "retardatairePct"
+            )
+            .value
+        ),
+
+        pieces:
+        Number(
+            document
+            .getElementById(
+                "nbPieces"
+            )
+            .textContent
+        ),
+
+        volume:
+        Number(
+            document
+            .getElementById(
+                "volumeTotal"
+            )
+            .textContent
+        ),
+
+        liquide:
+        Number(
+            document
+            .getElementById(
+                "liquide"
+            )
+            .textContent
+        ),
+
+        poudre:
+        Number(
+            document
+            .getElementById(
+                "poudre"
+            )
+            .textContent
+        ),
+
+        colorant:
+        Number(
+            document
+            .getElementById(
+                "colorant"
+            )
+            .textContent
+        ),
+
+        retardataire:
+        Number(
+            document
+            .getElementById(
+                "retardataire"
+            )
+            .textContent
+        ),
+
+        references:
+        detailReferences,
+
+		statut:"Produit",
+
+		commentaire:"",
+		dateCommentaire:""
+
+    };
+
+    lots.unshift(lot);
+
+    saveLots(lots);
+
+    document
+.getElementById(
+    "confirmationLot"
+)
+.innerHTML =
+
+`
+<div class="success">
+
+    ✅ Production enregistrée
+
+    <br><br>
+
+    Numéro de lot :
+
+    <b>${numeroLot}</b>
+
+    <br><br>
+
+    Disponible dans l'onglet
+    Historique
+
+</div>
+`;
+
+/* Mise à jour immédiate */
+
+renderHistorique();
+
+afficherStatsSauvegarde();
+
+}
+
+/* =====================================================
+   HISTORIQUE
+===================================================== */
+
+function renderHistorique(){
+
+    const lots =
+    getLots();
+
+    const filtre =
+    document
+    .getElementById(
+        "rechercheHistorique"
+    )
+    .value
+    .toLowerCase()
+    .trim();
+
+    historiqueContainer.innerHTML = "";
+
+    lots.forEach(
+
+    (lot,index)=>{
+
+        const texteRecherche =
+        JSON.stringify(lot)
+        .toLowerCase();
+
+        if(
+            !texteRecherche.includes(
+                filtre
+            )
+        ){
+            return;
+        }
+
+        const refsHtml =
+
+        lot.references
+        .map(r=>`
+
+            <div>
+
+                ${r.reference}
+                x
+                ${r.quantite}
+
+            </div>
+
+        `)
+        .join("");
+
+        const bloc =
+        document.createElement(
+            "div"
+        );
+
+        bloc.className =
+        "card";
+
+        bloc.innerHTML =
+
+        `
+        <div
+            class="historique-header"
+            style="
+                cursor:pointer;
+                font-weight:bold;
+                font-size:18px;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+            "
+            onclick="toggleHistorique(${index})"
+        >
+
+            <span>
+
+			<span class="fleche">
+				▶
+			</span>
+
+			${lot.lot}
+
+</span>
+
+
+            <span>
+                ${lot.date}
+            </span>
+
+        </div>
+
+        <div
+            id="detail-${index}"
+            style="display:none;margin-top:15px;"
+        >
+
+            <div>
+            🎨 Couleur :
+            <b>${lot.couleur}</b>
+            </div>
+
+			<br>
+
+			<div>
+
+			Statut :
+
+<select
+id="statut-${index}"
+onchange="changerStatut(${index})"
+style="
+background:
+${lot.statut==="Annule"
+? '#fee2e2'
+: '#dcfce7'};
+font-weight:bold;
+">
+
+<option
+value="Produit"
+${lot.statut==="Produit" ? "selected" : ""}>
+
+✅ Produit
+
+</option>
+
+<option
+value="Annule"
+${lot.statut==="Annule" ? "selected" : ""}>
+
+❌ Annulé
+
+</option>
+
+</select>
+
+			</div>
+
+            <hr>
+
+            <div>
+            <b>Paramètres utilisés</b>
+            </div>
+
+            <div>
+            Majoration :
+            ${lot.majoration} %
+            </div>
+
+            <div>
+            Colorant :
+            ${lot.colorantPct} %
+            </div>
+
+            <div>
+            Retardataire :
+            ${lot.retardatairePct} %
+            </div>
+
+            <hr>
+
+            <div>
+            <b>Références</b>
+            <br>
+            ${refsHtml}
+            </div>
+
+            <hr>
+
+            <div>
+            Pièces :
+            ${lot.pieces}
+            </div>
+
+            <div>
+            Volume :
+            ${lot.volume} ml
+            </div>
+
+            <div>
+            Liquide :
+            ${lot.liquide} g
+            </div>
+
+            <div>
+            Poudre :
+            ${lot.poudre} g
+            </div>
+
+            <div>
+            Colorant :
+            ${lot.colorant} g
+            </div>
+
+            <div>
+            Retardataire :
+            ${lot.retardataire} g
+            </div>
+
+            <hr>
+
+            <button
+            class="action-btn"
+            onclick="reproduireLot(${index})">
+
+            🔄 Reproduire cette production
+
+            </button>
+
+            <br><br>
+
+            <textarea
+            id="comment-${index}"
+            placeholder="Retour d'expérience..."
+            >${lot.commentaire || ""}</textarea>
+
+            <br>
+
+            <button
+            class="action-btn"
+            onclick="saveComment(${index})">
+
+            💾 Sauvegarder commentaire
+
+            </button>
+
+            <div
+            id="message-comment-${index}">
+            </div>
+
+        </div>
+        `;
+
+        historiqueContainer
+        .appendChild(bloc);
+
+    });
+
+}
+
+window.toggleHistorique =
+function(index){
+
+    const detail =
+    document.getElementById(
+        `detail-${index}`
+    );
+
+    const fleche =
+    detail
+    .parentElement
+    .querySelector(
+        ".fleche"
+    );
+
+    if(
+        detail.style.display ===
+        "none"
+    ){
+
+        detail.style.display =
+        "block";
+
+        fleche.textContent =
+        "▼";
+
+    }
+    else{
+
+        detail.style.display =
+        "none";
+
+        fleche.textContent =
+        "▶";
+
+    }
+
+};
+
+window.ouvrirToutHistorique =
+function(){
+
+    document
+    .querySelectorAll(
+        "[id^='detail-']"
+    )
+    .forEach(detail=>{
+
+        detail.style.display =
+        "block";
+
+    });
+
+    document
+    .querySelectorAll(
+        ".historique-header .fleche"
+    )
+    .forEach(fleche=>{
+
+        fleche.textContent =
+        "▼";
+
+    });
+
+};
+
+window.fermerToutHistorique =
+function(){
+
+    document
+    .querySelectorAll(
+        "[id^='detail-']"
+    )
+    .forEach(detail=>{
+
+        detail.style.display =
+        "none";
+
+    });
+
+    document
+    .querySelectorAll(
+        ".historique-header .fleche"
+    )
+    .forEach(fleche=>{
+
+        fleche.textContent =
+        "▶";
+
+    });
+
+};
+
+
+/* =====================================================
+   COMMENTAIRES
+===================================================== */
+
+window.saveComment =
+function(index){
+
+    const lots =
+    getLots();
+
+    lots[index].commentaire =
+
+    document
+    .getElementById(
+        `comment-${index}`
+    )
+    .value;
+
+    lots[index].dateCommentaire =
+    new Date()
+    .toLocaleString();
+
+    saveLots(lots);
+
+    document
+    .getElementById(
+        `message-comment-${index}`
+    )
+    .innerHTML =
+
+    `
+    <div class="success">
+
+        ✅ Commentaire sauvegardé
+
+        <br>
+
+        ${lots[index].dateCommentaire}
+
+    </div>
+    `;
+
+};
+
+/* =====================================================
+   REPRODUCTION D'UN LOT
+===================================================== */
+
+window.reproduireLot =
+function(index){
+
+    const lots =
+    getLots();
+
+    const lot =
+    lots[index];
+
+    showPage(
+        "pageProduction"
+    );
+
+    document
+    .getElementById(
+        "couleur"
+    )
+    .value =
+    lot.couleur;
+
+    document
+    .getElementById(
+        "majoration"
+    )
+    .value =
+    lot.majoration;
+
+    document
+    .getElementById(
+        "colorantPct"
+    )
+    .value =
+    lot.colorantPct;
+
+    document
+    .getElementById(
+        "retardatairePct"
+    )
+    .value =
+    lot.retardatairePct;
+
+    document
+    .getElementById(
+        "referenceLines"
+    )
+    .innerHTML = "";
+
+    lot.references
+    .forEach(ref=>{
+
+        ajouterLigne();
+
+        const lignes =
+
+        document
+        .querySelectorAll(
+            "#referenceLines .reference-line"
+        );
+
+        const ligne =
+        lignes[
+            lignes.length - 1
+        ];
+
+const referenceChoisie =
+
+ligne.querySelector(
+    "[data-reference]"
+);
+
+referenceChoisie.dataset.reference =
+ref.reference;
+
+referenceChoisie.innerHTML =
+`<b>${ref.reference}</b>`;
+
+const champRecherche =
+
+ligne.querySelector(
+    "input:not([type='number'])"
+);
+
+if(champRecherche){
+
+    champRecherche.placeholder =
+    ref.reference;
+
+}
+
+ligne
+.querySelector(
+    "input[type='number']"
+)
+.value =
+ref.quantite;
+
+    });
+
+    calculer();
+
+};
+
+/* =====================================================
+   RECHERCHE HISTORIQUE
+===================================================== */
+
+document
+.getElementById(
+    "rechercheHistorique"
+)
+.addEventListener(
+"input",
+renderHistorique
+);
+
+
+/* =====================================================
+   AJOUT REFERENCE
+===================================================== */
+
+document
+.getElementById("btnAddRef")
+.addEventListener(
+"click",
+ajouterReference
+);
+
+function ajouterReference(){
+
+    const nom =
+    document
+    .getElementById(
+        "newRefName"
+    )
+    .value
+    .trim();
+
+    const volume =
+    Number(
+        document
+        .getElementById(
+            "newRefVolume"
+        )
+        .value
+    );
+
+    if(!nom){
+
+        alert(
+            "Veuillez saisir un nom"
+        );
+
+        return;
+    }
+
+    if(volume <= 0){
+
+        alert(
+            "Veuillez saisir un volume valide"
+        );
+
+        return;
+    }
+
+    const existe =
+    references.some(r =>
+
+        r.nom
+        .toLowerCase()
+        ===
+        nom.toLowerCase()
+
+    );
+
+    if(existe){
+
+        alert(
+            "Cette référence existe déjà"
+        );
+
+        return;
+    }
+
+    references.push({
+
+        nom,
+        volume
+
+    });
+
+    saveReferences();
+
+    document
+    .getElementById(
+        "newRefName"
+    )
+    .value = "";
+
+    document
+    .getElementById(
+        "newRefVolume"
+    )
+    .value = "";
+
+    renderReferences();
+
+    refreshAllProductionLists();
+
+}
+
+/* =====================================================
+   RECHERCHE + TRI
+===================================================== */
+
+function renderReferences(){
+
+    const filtre =
+
+    document
+    .getElementById(
+        "refSearch"
+    )
+    .value
+    .toLowerCase()
+    .trim();
+
+    const tri =
+
+    document
+    .getElementById(
+        "refSort"
+    )
+    .value;
+
+    let refsAffichage =
+    [...references];
+
+    switch(tri){
+
+        case "za":
+
+            refsAffichage.sort(
+                (a,b)=>
+                b.nom.localeCompare(
+                    a.nom
+                )
+            );
+
+            break;
+
+        case "volumeAsc":
+
+            refsAffichage.sort(
+                (a,b)=>
+                a.volume - b.volume
+            );
+
+            break;
+
+        case "volumeDesc":
+
+            refsAffichage.sort(
+                (a,b)=>
+                b.volume - a.volume
+            );
+
+            break;
+
+        default:
+
+            refsAffichage.sort(
+                (a,b)=>
+                a.nom.localeCompare(
+                    b.nom
+                )
+            );
+
+    }
+
+    refsAffichage =
+    refsAffichage.filter(ref=>
+
+        ref.nom
+        .toLowerCase()
+        .includes(filtre)
+
+    );
+
+    const container =
+    document.getElementById(
+        "referencesContainer"
+    );
+
+    container.innerHTML = "";
+
+    refsAffichage.forEach(ref=>{
+
+        const index =
+        references.findIndex(
+            r =>
+
+            r.nom === ref.nom
+            &&
+            r.volume === ref.volume
+        );
+
+        const card =
+        document.createElement(
+            "div"
+        );
+
+        card.className =
+        "card";
+
+        card.innerHTML =
+
+        `
+        <h3>
+        ${ref.nom}
+        </h3>
+
+        <div>
+        Volume :
+        <b>${ref.volume} ml</b>
+        </div>
+
+        <br>
+
+        <button
+        class="action-btn"
+        onclick="modifierReference(${index})">
+
+        ✏ Modifier
+
+        </button>
+
+        <button
+        class="action-btn"
+        onclick="supprimerReference(${index})">
+
+        🗑 Supprimer
+
+        </button>
+        `;
+
+        container.appendChild(
+            card
+        );
+
+    });
+
+    document
+    .getElementById(
+        "refCounter"
+    )
+    .textContent =
+
+    `${refsAffichage.length}
+    référence(s) trouvée(s)`;
+
+}
+
+/* =====================================================
+   MODIFICATION
+===================================================== */
+
+window.modifierReference =
+function(index){
+
+    const ref =
+    references[index];
+
+    const nouveauNom =
+    prompt(
+        "Nom",
+        ref.nom
+    );
+
+    if(
+        nouveauNom === null
+    ){
+        return;
+    }
+
+    const nouveauVolume =
+    prompt(
+        "Volume",
+        ref.volume
+    );
+
+    if(
+        nouveauVolume === null
+    ){
+        return;
+    }
+
+    ref.nom =
+    nouveauNom.trim();
+
+    ref.volume =
+    Number(
+        nouveauVolume
+    );
+
+    saveReferences();
+
+    renderReferences();
+
+    refreshAllProductionLists();
+
+};
+
+/* =====================================================
+   SUPPRESSION
+===================================================== */
+
+window.supprimerReference =
+function(index){
+
+    const ref =
+    references[index];
+
+    const ok =
+    confirm(
+
+        `Supprimer :
+
+${ref.nom}
+
+(${ref.volume} ml) ?`
+
+    );
+
+    if(!ok){
+
+        return;
+
+    }
+
+    references.splice(
+        index,
+        1
+    );
+
+    saveReferences();
+
+    renderReferences();
+
+    refreshAllProductionLists();
+
+};
+
+/* =====================================================
+   MISE A JOUR DES
+   LISTES DE PRODUCTION
+===================================================== */
+
+function refreshAllProductionLists(){
+
+    calculer();
+
+}
+
+/* =====================================================
+   EVENEMENTS
+===================================================== */
+
+document
+.getElementById(
+    "refSearch"
+)
+.addEventListener(
+"input",
+renderReferences
+);
+
+document
+.getElementById(
+    "refSort"
+)
+.addEventListener(
+"change",
+renderReferences
+);
+
+/* =====================================================
+   INITIALISATION
+===================================================== */
+
+renderReferences();
+
+
+/* =====================================================
+   EXPORT COMPLET
+===================================================== */
+
+document
+.getElementById("btnExport")
+.addEventListener(
+"click",
+exporterDonnees
+);
+
+document
+.getElementById("btnExportExcel")
+.addEventListener(
+"click",
+exporterExcel
+);
+
+function exporterDonnees(){
+
+    const backup = {
+
+        version : "V4",
+
+        dateExport :
+        new Date()
+        .toLocaleString(),
+
+        references :
+        references,
+
+        lots :
+        getLots()
+
+    };
+
+    const contenu =
+    JSON.stringify(
+        backup,
+        null,
+        2
+    );
+
+    const blob =
+    new Blob(
+        [contenu],
+        {
+            type:
+            "application/json"
+        }
+    );
+
+    const lien =
+    document.createElement(
+        "a"
+    );
+
+    const dateExport =
+    new Date()
+    .toISOString()
+    .slice(0,10);
+
+    lien.href =
+    URL.createObjectURL(
+        blob
+    );
+
+    lien.download =
+    `jesmonite-backup-${dateExport}.json`;
+
+    lien.click();
+
+}
+
+/* =====================================================
+   IMPORT COMPLET
+===================================================== */
+
+const zoneImport =
+document.createElement(
+    "input"
+);
+
+zoneImport.type = "file";
+
+zoneImport.accept = ".json";
+
+zoneImport.style.display =
+"none";
+
+document.body.appendChild(
+    zoneImport
+);
+
+document
+.getElementById("btnImport")
+.addEventListener(
+"click",
+()=>{
+
+    zoneImport.click();
+
+}
+);
+
+zoneImport.addEventListener(
+"change",
+importerDonnees
+);
+
+function importerDonnees(event){
+
+    const fichier =
+    event.target.files[0];
+
+    if(!fichier){
+
+        return;
+
+    }
+
+    const reader =
+    new FileReader();
+
+    reader.onload =
+    function(e){
+
+        try{
+
+            const data =
+            JSON.parse(
+                e.target.result
+            );
+
+            if(
+                !data.references
+                ||
+                !data.lots
+            ){
+
+                throw new Error(
+                    "Format invalide"
+                );
+
+            }
+
+            references =
+            data.references;
+
+            saveReferences();
+
+            saveLots(
+                data.lots
+            );
+
+            renderReferences();
+
+            renderHistorique();
+
+            refreshAllProductionLists();
+
+            alert(
+
+                "Import terminé avec succès"
+
+            );
+
+        }
+        catch(error){
+
+            alert(
+
+                "Fichier invalide"
+
+            );
+
+        }
+
+    };
+
+    reader.readAsText(
+        fichier
+    );
+
+}
+
+/* =====================================================
+   STATISTIQUES RAPIDES
+===================================================== */
+
+function calculerStatistiques(){
+
+const lots =
+
+getLots().filter(
+
+    lot =>
+
+    lot.statut !==
+    "Annule"
+
+);
+
+const nbLotsAnnules =
+
+getLots().filter(
+
+    lot =>
+
+    lot.statut ===
+    "Annule"
+
+).length;
+
+    return {
+
+        nbLots :
+
+        lots.length,
+		
+		nbLotsAnnules :
+
+		nbLotsAnnules,
+
+        nbPieces :
+
+        lots.reduce(
+
+            (total, lot)=>
+
+                total +
+                Number(
+                    lot.pieces || 0
+                ),
+
+            0
+
+        ),
+
+        volumeTotal :
+
+        lots.reduce(
+
+            (total, lot)=>
+
+                total +
+                Number(
+                    lot.volume || 0
+                ),
+
+            0
+
+        ),
+
+        liquideTotal :
+
+        Number(
+
+    lots.reduce(
+
+        (total, lot)=>
+
+            total +
+            Number(
+                lot.liquide || 0
+            ),
+
+        0
+
+    ).toFixed(1)
+
+),
+
+        poudreTotal :
+
+        Number(
+
+    lots.reduce(
+
+        (total, lot)=>
+
+            total +
+            Number(
+                lot.poudre || 0
+            ),
+
+        0
+
+    ).toFixed(1)
+
+),
+
+        colorantTotal :
+
+       Number(
+
+    lots.reduce(
+
+        (total, lot)=>
+
+            total +
+            Number(
+                lot.colorant || 0
+            ),
+
+        0
+
+    ).toFixed(1)
+
+),
+
+retardataireTotal :
+
+Number(
+
+    lots.reduce(
+
+        (total, lot)=>
+
+            total +
+            Number(
+                lot.retardataire || 0
+            ),
+
+        0
+
+    ).toFixed(1)
+
+),
+
+    };
+
+}
+
+/* =====================================================
+   AFFICHAGE STATS
+===================================================== */
+
+function afficherStatsSauvegarde(){
+
+    let bloc =
+
+    document.getElementById(
+        "statsSauvegarde"
+    );
+
+    if(!bloc){
+
+        bloc =
+        document.createElement(
+            "div"
+        );
+
+        bloc.id =
+        "statsSauvegarde";
+
+        document
+        .getElementById(
+            "pageSauvegarde"
+        )
+        .appendChild(
+            bloc
+        );
+
+    }
+
+    const stats =
+    calculerStatistiques();
+
+    bloc.innerHTML =
+
+    `
+    <div class="card">
+
+        <h3>
+        Statistiques de production
+        </h3>
+
+        <div>
+        Lots produits :
+        <b>${stats.nbLots}</b>
+        </div>
+
+        <br>
+
+        <div>
+        Lots annulés :
+        <b>${stats.nbLotsAnnules}</b>
+        </div>
+
+        <br>
+
+        <div>
+        Nombre total de pièces :
+        <b>${stats.nbPieces}</b>
+        </div>
+
+        <br>
+
+        <div>
+        Volume total produit :
+        <b>${stats.volumeTotal} ml</b>
+        </div>
+
+        <hr>
+
+        <div>
+        Liquide consommé :
+        <b>${stats.liquideTotal} g</b>
+        </div>
+
+        <div>
+        Poudre consommée :
+        <b>${stats.poudreTotal} g</b>
+        </div>
+
+        <div>
+        Colorant consommé :
+        <b>${stats.colorantTotal} g</b>
+        </div>
+
+        <div>
+        Retardataire consommé :
+        <b>${stats.retardataireTotal} g</b>
+        </div>
+
+    </div>
+    `;
+
+}
+
+/* =====================================================
+   MISE A JOUR STATS
+===================================================== */
+
+const ancienneSauvegarde =
+sauvegarderProduction;
+
+sauvegarderProduction =
+function(){
+
+    ancienneSauvegarde();
+
+    afficherStatsSauvegarde();
+
+};
+
+/* =====================================================
+   DEMARRAGE APPLICATION
+===================================================== */
+
+renderReferences();
+
+renderHistorique();
+
+afficherStatsSauvegarde();
+
+console.log(
+    "Jesmonite V4 prêt"
+);
+
+function exporterExcel(){
+
+    const lots = getLots();
+
+    const wb = XLSX.utils.book_new();
+
+    /* =========================
+       FEUILLE HISTORIQUE
+    ========================= */
+
+    const historique = lots.map(lot => ({
+
+		Lot: lot.lot,
+
+		Date: lot.date,
+
+		DateIso:
+		lot.dateIso || "",
+
+		Couleur: lot.couleur,
+
+
+		Statut:
+		lot.statut || "Produit",
+
+        Pieces: lot.pieces,
+
+        Volume_ml: lot.volume,
+
+        Liquide_g: lot.liquide,
+
+        Poudre_g: lot.poudre,
+
+        Colorant_g: lot.colorant,
+
+        Retardataire_g: lot.retardataire,
+
+        Commentaire:
+        lot.commentaire || ""
+
+    }));
+
+    const wsHistorique =
+    XLSX.utils.json_to_sheet(
+        historique
+    );
+
+    XLSX.utils.book_append_sheet(
+
+        wb,
+        wsHistorique,
+        "Historique"
+
+    );
+
+    /* =========================
+       FEUILLE DETAIL
+    ========================= */
+
+    const detail = [];
+
+    lots.forEach(lot=>{
+
+        lot.references.forEach(ref=>{
+
+            detail.push({
+
+                Lot:
+                lot.lot,
+
+                Date:
+                lot.date,
+
+                Couleur:
+                lot.couleur,
+
+                Reference:
+                ref.reference,
+
+                Quantite:
+                ref.quantite
+
+            });
+
+        });
+
+    });
+
+    const wsDetail =
+    XLSX.utils.json_to_sheet(
+        detail
+    );
+
+    XLSX.utils.book_append_sheet(
+
+        wb,
+        wsDetail,
+        "DetailProduction"
+
+    );
+	
+	/* =========================
+   FEUILLE REFERENCES
+========================= */
+
+const listeReferences =
+
+references.map(ref => ({
+
+    Nom:
+    ref.nom,
+
+    Volume_ml:
+    ref.volume
+
+}));
+
+const wsReferences =
+
+XLSX.utils.json_to_sheet(
+    listeReferences
+);
+
+XLSX.utils.book_append_sheet(
+
+    wb,
+
+    wsReferences,
+
+    "References"
+
+);
+
+XLSX.writeFile(
+    wb,
+    `Jesmonite_${new Date()
+        .toISOString()
+        .slice(0,10)}.xlsx`
+);
+
+}
+
+function rechargerReferencesParDefaut(){
+
+    localStorage.removeItem(
+        STORAGE_REF
+    );
+
+    alert(
+        "Les références ont été supprimées. Recharge maintenant la page."
+    );
+
+}
+document
+.getElementById("btnResetRefs")
+.addEventListener(
+    "click",
+    rechargerReferencesParDefaut
+);
+
+function viderProduction(){
+
+    if(
+        !confirm(
+            "Supprimer toutes les références de la production ?"
+        )
+    ){
+        return;
+    }
+
+    document
+    .getElementById(
+        "referenceLines"
+    )
+    .innerHTML = "";
+
+    calculer();
+
+}
+
+window.changerStatut =
+function(index){
+
+    const lots =
+    getLots();
+
+    const select =
+    document
+    .getElementById(
+        `statut-${index}`
+    );
+
+    lots[index].statut =
+    select.value;
+
+    saveLots(lots);
+
+    select.style.background =
+
+    select.value ===
+    "Annule"
+
+    ?
+
+    "#fee2e2"
+
+    :
+
+    "#dcfce7";
+
+    afficherStatsSauvegarde();
+
+};
+
+document
+.getElementById(
+    "btnExportReferences"
+)
+.addEventListener(
+    "click",
+    exporterReferences
+);
+
+document
+.getElementById(
+    "btnImportReferences"
+)
+.addEventListener(
+    "click",
+    importerReferences
+);
+
+function exporterReferences(){
+
+    const contenu =
+
+    JSON.stringify(
+        references,
+        null,
+        2
+    );
+
+    const blob =
+    new Blob(
+
+        [contenu],
+
+        {
+            type:
+            "application/json"
+        }
+
+    );
+
+    const lien =
+    document.createElement(
+        "a"
+    );
+
+    lien.href =
+
+    URL.createObjectURL(
+        blob
+    );
+
+    lien.download =
+
+    "references.json";
+
+    lien.click();
+
+}
+
+const fichierReferences =
+document.createElement(
+    "input"
+);
+
+fichierReferences.type =
+"file";
+
+fichierReferences.accept =
+".json";
+
+fichierReferences.style.display =
+"none";
+
+document.body.appendChild(
+    fichierReferences
+);
+
+function importerReferences(){
+
+    fichierReferences.click();
+
+}
+
+fichierReferences.addEventListener(
+
+    "change",
+
+    function(event){
+
+        const fichier =
+
+        event.target.files[0];
+
+        if(!fichier){
+
+            return;
+
+        }
+
+        const reader =
+        new FileReader();
+
+        reader.onload =
+
+        function(e){
+
+            try{
+
+                const data =
+
+                JSON.parse(
+                    e.target.result
+                );
+
+                if(
+                    !Array.isArray(
+                        data
+                    )
+                ){
+
+                    throw new Error();
+
+                }
+
+                references = data;
+
+                saveReferences();
+
+                renderReferences();
+
+                refreshAllProductionLists();
+
+                alert(
+
+                    "Références importées avec succès"
+
+                );
+
+            }
+            catch{
+
+                alert(
+
+                    "Fichier de références invalide"
+
+                );
+
+            }
+
+        };
+
+        reader.readAsText(
+            fichier
+        );
+
+    }
+
+);
+
+const STORAGE_STATS_DATE =
+"jesmonite_stats_date";
+
+function getStatsStartDate(){
+
+    return localStorage.getItem(
+        STORAGE_STATS_DATE
+    );
+
+}
+
+function setStatsStartDate(){
+
+    const aujourdHui =
+
+    new Date()
+    .toISOString();
+
+    localStorage.setItem(
+
+        STORAGE_STATS_DATE,
+
+        aujourdHui
+
+    );
+
+}
+
+if(
+    !getStatsStartDate()
+){
+
+    setStatsStartDate();
+
+}
+
+/*
+document
+.getElementById(
+    "btnResetStats"
+)
+.addEventListener(
+    "click",
+    resetStatsDate
+);
+*/
+
+/*
+function resetStatsDate(){
+
+    if(
+        !confirm(
+            "Redémarrer les statistiques à partir d'aujourd'hui ?"
+        )
+    ){
+        return;
+    }
+
+    setStatsStartDate();
+
+    afficherStatsSauvegarde();
+
+}
+*/
+
+</script>
+
+</body>
+
+</html>
