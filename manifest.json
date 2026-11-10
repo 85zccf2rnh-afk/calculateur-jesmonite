@@ -1,6 +1,6 @@
 {
-  "name": "Calculateur Jesmonite",
-  "short_name": "Jesmonite",
+  "name": "Calculateur Jesmonite Atelier V5",
+  "short_name": "Jesmonite V5",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
