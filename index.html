@@ -568,6 +568,13 @@ id="newRefVolume"
 type="number"
 placeholder="Volume">
 
+<input
+id="newRefNbPieces"
+type="number"
+placeholder="Nb pièces"
+value="1"
+min="1">
+
 <br><br>
 
 <button
@@ -1227,8 +1234,11 @@ if(!ref){
         volumeTotal +=
         sousTotal;
 
-        piecesTotales +=
-        qte;
+		piecesTotales +=
+
+		qte *
+
+		(ref.nbPieces || 1);
 
         line._volumeInfo.innerHTML =
         `
@@ -1606,6 +1616,22 @@ line
 
 </div>
 `;
+
+setTimeout(
+
+    ()=>{
+
+        document
+        .getElementById(
+            "confirmationLot"
+        )
+        .innerHTML = "";
+
+    },
+
+    3000
+
+);
 
 /* Mise à jour immédiate */
 
@@ -2182,12 +2208,25 @@ function ajouterReference(){
         return;
     }
 
-    references.push({
+	references.push({
 
-        nom,
-        volume
+		nom: nom,
 
-    });
+		volume: volume,
+
+		nbPieces:
+
+		Number(
+
+			document
+			.getElementById(
+				"newRefNbPieces"
+			)
+			.value
+
+		) || 1
+
+	});
 
     saveReferences();
 
@@ -2313,19 +2352,24 @@ function renderReferences(){
         card.className =
         "card";
 
-        card.innerHTML =
+card.innerHTML =
 
-        `
-        <h3>
-        ${ref.nom}
-        </h3>
+`
+<h3>
+${ref.nom}
+</h3>
 
-        <div>
-        Volume :
-        <b>${ref.volume} ml</b>
-        </div>
+<div>
+Volume :
+<b>${ref.volume} ml</b>
+</div>
 
-        <br>
+<div>
+Pièces :
+<b>${ref.nbPieces || 1}</b>
+</div>
+
+<br>
 
         <button
         class="action-btn"
@@ -2395,6 +2439,18 @@ function(index){
         return;
     }
 
+    const nouveauNbPieces =
+    prompt(
+        "Nombre de pièces",
+        ref.nbPieces || 1
+    );
+
+    if(
+        nouveauNbPieces === null
+    ){
+        return;
+    }
+
     ref.nom =
     nouveauNom.trim();
 
@@ -2402,6 +2458,11 @@ function(index){
     Number(
         nouveauVolume
     );
+
+    ref.nbPieces =
+    Number(
+        nouveauNbPieces
+    ) || 1;
 
     saveReferences();
 
@@ -2513,7 +2574,7 @@ function exporterDonnees(){
 
     const backup = {
 
-        version : "V4",
+        version : "V5",
 
         dateExport :
         new Date()
